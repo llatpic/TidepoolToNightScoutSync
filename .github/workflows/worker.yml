@@ -2,8 +2,8 @@ name: Tidepool to Nightscout Sync
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # Modificat: s'executarà de fons cada 5 minuts
-  workflow_dispatch:      # Et continua deixant prémer el botó manual
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
 
 jobs:
   sync:
@@ -17,11 +17,13 @@ jobs:
       with:
         dotnet-version: '8.0'
 
+    - name: Publish Project
+      run: dotnet publish TidepoolToNightScoutSync.sln --configuration Release --output ./publish
+
     - name: Run Sync Tool
       env:
         tidepool__Username: ${{ secrets.TIDEPOOL_USER }}
         tidepool__Password: ${{ secrets.TIDEPOOL_PASSWORD }}
         nightscout__BaseUrl: ${{ secrets.NIGHTSCOUT_URL }}
         nightscout__ApiKey: ${{ secrets.NIGHTSCOUT_API_SECRET }}
-      run: |
-        dotnet run --configuration Release
+      run: dotnet exec ./publish/TidepoolToNightScoutSync.dll
